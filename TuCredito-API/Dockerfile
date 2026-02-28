@@ -1,29 +1,29 @@
-# Use the official .NET SDK image to build the app
+# ---------- BUILD STAGE ----------
 FROM mcr.microsoft.com/dotnet/sdk:10.0-noble AS build
 WORKDIR /src
 
-# Copy the project file and restore dependencies
+# Copiar el csproj y restaurar dependencias
 COPY ["TuCredito.csproj", "./"]
 RUN dotnet restore "TuCredito.csproj"
 
-# Copy the rest of the source code
+# Copiar el resto del código
 COPY . .
 
-# Build the application
-RUN dotnet build "TuCredito.csproj" -c Release -o /app/build
-
-# Publish the application
-FROM build AS publish
+# Publicar la aplicación
 RUN dotnet publish "TuCredito.csproj" -c Release -o /app/publish
 
-# Use the official .NET runtime image for the final stage
+# ---------- RUNTIME STAGE ----------
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-noble AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
 
-# Expose the port the app runs on (Render uses PORT env var, defaults to 8080 usually, but we expose 80)
-EXPOSE 80
-EXPOSE 443
+# Copiar archivos publicados
+COPY --from=build /app/publish .
 
-# Set the entry point
+# Render usa la variable de entorno PORT
+ENV ASPNETCORE_URLS=http://+:$PORT
+
+# Exponer puerto (Render generalmente usa 10000 o 8080 internamente)
+EXPOSE 8080
+
+# Ejecutar la app
 ENTRYPOINT ["dotnet", "TuCredito.dll"]
