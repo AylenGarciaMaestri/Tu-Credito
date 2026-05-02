@@ -197,8 +197,18 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<TuCreditoContext>();
-        DbInitializer.Initialize(context);
-        Console.WriteLine("✅ Database ensured created and seeded.");
+        var seedEnabled = builder.Configuration.GetValue("Database:EnableSeed", builder.Environment.IsDevelopment());
+
+        if (seedEnabled)
+        {
+            DbInitializer.Initialize(context);
+            Console.WriteLine("✅ Database ensured created and seeded.");
+        }
+        else
+        {
+            context.Database.EnsureCreated();
+            Console.WriteLine("✅ Database ensured created without seed data.");
+        }
     }
     catch (Exception ex)
     {
