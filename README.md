@@ -132,6 +132,55 @@ Tu-Credito/
 └── *.sql                   # Scripts de BD 
 ```
 
+## 🌱 Ejecutar con base de datos limpia (sin datos semilla)
+
+El backend ahora permite activar/desactivar la carga automática de datos de prueba con la clave `Database:EnableSeed`:
+
+- `true`: crea la BD y carga datos semilla (útil para desarrollo local).
+- `false`: crea solo la estructura vacía (recomendado para dashboard/estadísticas reales).
+
+### Opciones recomendadas
+
+1. **Producción (BD limpia):** dejar `Database:EnableSeed=false`.
+2. **Desarrollo local:** usar `appsettings.Development.json` con `Database:EnableSeed=true`.
+3. **Override por variable de entorno:**
+
+```bash
+Database__EnableSeed=false
+```
+
+> Nota: en servidores como Render, Railway o Docker puedes configurar `Database__EnableSeed=false` en variables de entorno.
+
+---
+
+## ☁️ Hostear la aplicación (Frontend + Backend)
+
+### Backend (.NET API)
+
+Puedes usar **Render** (ya compatible con este repo):
+
+1. Crear un servicio web apuntando a `TuCredito-API/`.
+2. Build command: `dotnet publish TuCredito.csproj -c Release -o out`
+3. Start command: `dotnet out/TuCredito.dll`
+4. Variables de entorno mínimas:
+   - `DB_PROVIDER=Postgres` (o `SqlServer`/`Sqlite`)
+   - `DATABASE_URL=<connection-string>`
+   - `Database__EnableSeed=false`
+   - `FRONTEND_URL=https://tu-frontend.vercel.app`
+
+### Frontend (React + Vite)
+
+Puedes usar **Vercel**:
+
+1. Importar `TuCredito-Front/` como proyecto.
+2. Configurar variable de entorno:
+   - `VITE_API_URL=https://tu-backend.onrender.com`
+3. Deploy.
+
+Con eso el frontend consumirá tu API remota y podrás usar una base limpia de producción sin contaminar métricas.
+
+---
+
 ## 👩‍💻 Equipo de Desarrollo
 
 | Nombre | Rol | LinkedIn |
